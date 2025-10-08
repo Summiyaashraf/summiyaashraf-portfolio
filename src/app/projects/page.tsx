@@ -7,6 +7,22 @@ import { FiExternalLink } from "react-icons/fi";
 import { useState } from "react";
 
 const projects = [{
+  title: "Rozgar Bot",
+  description: "A smart AI-powered job-finding platform for Pakistan with instant job search and secure login.",
+  image: "/Rozgar bot.png
+  tech: ["Next.js", "Tailwind CSS", "AI Integration"],
+  github: "https://github.com/Summiyaashraf/Rozgar-bot-frontend.git"
+  live: "https://www.rozgarbot.site/",
+},
+{
+  title: "Textile Demo Website",
+  description: "A professional textile business demo showcasing product presentation and responsive UI.",
+  image: "/Texttile Demo Web.png
+  tech: ["Next.js", "Tailwind CSS"],
+  github: "https://github.com/Summiyaashraf/Texttile.git"
+  live: "https://texttile-blush.vercel.app/",
+},
+{
     title: "Ruhi Resin Art",
     description: "An elegant resin art shop with cart and checkout system.",
     image: "/Ruhi resin art.png",
@@ -175,3 +191,4 @@ export default function Projects() {
     </section>
   );
 }
+
