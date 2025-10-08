@@ -9,7 +9,7 @@ import { useState } from "react";
 const projects = [{
   title: "Rozgar Bot",
   description: "A smart AI-powered job-finding platform for Pakistan with instant job search and secure login.",
-  image: "/Rozgar bot.png
+  image: "/Rozgar bot.png",
   tech: ["Next.js", "Tailwind CSS", "AI Integration"],
   github: "https://github.com/Summiyaashraf/Rozgar-bot-frontend.git",
   live: "https://www.rozgarbot.site/",
@@ -17,7 +17,7 @@ const projects = [{
 {
   title: "Textile Demo Website",
   description: "A professional textile business demo showcasing product presentation and responsive UI.",
-  image: "/Texttile Demo Web.png
+  image: "/Texttile Demo Web.png",
   tech: ["Next.js", "Tailwind CSS"],
   github: "https://github.com/Summiyaashraf/Texttile.git",
   live: "https://texttile-blush.vercel.app/",
@@ -191,5 +191,6 @@ export default function Projects() {
     </section>
   );
 }
+
 
 
