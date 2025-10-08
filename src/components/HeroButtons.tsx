@@ -6,7 +6,7 @@ export function HeroButtons() {
   return (
     <div className="mt-6 flex space-x-4">
       <a
-        href="/Summiya Cv.pdf"
+        href="/SummiyaResume.pdf"
         download
         className="inline-flex items-center px-5 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
       >
@@ -24,3 +24,4 @@ export function HeroButtons() {
     </div>
   )
 }
+
