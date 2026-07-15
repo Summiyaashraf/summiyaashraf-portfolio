@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const projects = [
   {
-  title: " CNC Makinatic",
+  title: "CNC Makinatic",
   description: "A professional corporate website for a Jeddah-based CNC company showcasing custom automation layout and engineering solutions.",
   image: "/cnc.png",
   tech: ["Next.js", "Tailwind CSS"],
