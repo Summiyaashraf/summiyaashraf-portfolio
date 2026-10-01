@@ -1,31 +1,61 @@
 import {
-  FaFigma,
-  FaNodeJs,
-  FaPython,
-  FaCode,
-  FaRobot,
-} from "react-icons/fa";
-import {
+  SiClaude,
+  SiDocker,
+  SiFastapi,
+  SiFigma,
   SiNextdotjs,
+  SiPython,
+  SiReact,
   SiTailwindcss,
   SiTypescript,
-  SiCanva,
-  SiStreamlit,
-  SiVercel,
-  SiRailway,
 } from "react-icons/si";
+import { FiShare2 } from "react-icons/fi";
+import { BookOpen, Clapperboard, Palette, Sparkles } from "lucide-react";
+import { TiltCard } from "@/components/TiltCard";
 
-function SkillIcon({
-  name,
-  icon,
-}: {
+type Skill = {
   name: string;
   icon: React.ReactNode;
+  sub?: string;
+};
+
+function SkillNode({ node, index }: { node: Skill; index: number }) {
+  return (
+    <TiltCard maxTilt={16} className="card-glow">
+      <div className="node acrylic flex flex-col items-center justify-center text-sm w-full h-full min-h-28 text-center rounded-xl p-3">
+        <span className="mono-micro self-start">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div className="text-3xl text-[#a78bfa]">{node.icon}</div>
+        <span className="mt-2 text-foreground leading-tight">{node.name}</span>
+        {node.sub && (
+          <span className="mt-1 text-[10px] text-[#93c5fd] leading-tight">{node.sub}</span>
+        )}
+      </div>
+    </TiltCard>
+  );
+}
+
+function SkillMatrix({
+  index,
+  title,
+  nodes,
+}: {
+  index: string;
+  title: string;
+  nodes: Skill[];
 }) {
   return (
-    <div className="flex flex-col items-center justify-center text-sm w-24 h-24 text-center hover:scale-105 transition-transform rounded-lg shadow-md bg-muted p-2">
-      <div className="text-3xl text-primary">{icon}</div>
-      <span className="mt-2">{name}</span>
+    <div className="acrylic-panel hairline rounded-2xl p-6">
+      <h3 className="mb-6 flex items-center gap-3 text-lg font-bold">
+        <span className="mono-label">{index}</span>
+        <span className="gradient-text">{title}</span>
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {nodes.map((node, i) => (
+          <SkillNode key={node.name} node={node} index={i} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -34,40 +64,79 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="px-6 md:px-20 py-16 bg-background text-foreground"
+      className="relative px-6 md:px-20 py-20 overflow-hidden"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+        backgroundSize: "28px 28px",
+      }}
     >
-      <h2 className="text-3xl font-bold mb-10 text-center">My Skills</h2>
+      <div className="pointer-events-none absolute -left-32 top-20 w-96 h-96 rounded-full bg-[#7c3aed]/15 blur-3xl" />
 
-      <div className="grid md:grid-cols-2 gap-12">
-        {/* Frontend Skills */}
-        <div>
-          <h3 className="text-2xl font-semibold mb-6 text-blue-700 text-center">
-            Frontend
-          </h3>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-blue-700 font-semibold">
-            <SkillIcon name="Next.js" icon={<SiNextdotjs />} />
-            <SkillIcon name="Tailwind CSS" icon={<SiTailwindcss />} />
-            <SkillIcon name="TypeScript" icon={<SiTypescript />} />
-            <SkillIcon name="Figma" icon={<FaFigma />} />
-            <SkillIcon name="Canva" icon={<SiCanva />} />
-            <SkillIcon name="OpenAI" icon={<FaRobot />} />
-          </div>
+      <div className="mb-12">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="mono-label">02. Tech Stack</span>
+          <span className="h-px flex-1 bg-gradient-to-r from-[#7c3aed]/40 to-transparent" />
         </div>
+        <h2 className="text-3xl md:text-4xl font-bold gradient-text">
+          Technical Expertise
+        </h2>
+        <p className="mt-3 max-w-xl text-muted-foreground">
+          <span className="font-mono text-xs text-[#93c5fd]">{"// tech_stack.matrix"}</span> — the
+          tools and workflows I use to ship modern, production-ready products.
+        </p>
+      </div>
 
-        {/* Backend & Tools */}
-        <div>
-          <h3 className="text-2xl font-semibold mb-6 text-blue-700 text-center">
-            Backend & Tools
-          </h3>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-blue-700 font-semibold">
-            <SkillIcon name="Python" icon={<FaPython />} />
-            <SkillIcon name="Node.js" icon={<FaNodeJs />} />
-            <SkillIcon name="API Dev" icon={<FaCode />} />
-            <SkillIcon name="Streamlit" icon={<SiStreamlit />} />
-            <SkillIcon name="Vercel" icon={<SiVercel />} />
-            <SkillIcon name="Railway" icon={<SiRailway />} />
-          </div>
-        </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        <SkillMatrix
+          index="A"
+          title="Frontend & Design"
+          nodes={[
+            { name: "Next.js 15", icon: <SiNextdotjs /> },
+            { name: "React", icon: <SiReact /> },
+            { name: "TypeScript", icon: <SiTypescript /> },
+            { name: "Tailwind CSS", icon: <SiTailwindcss /> },
+            { name: "Figma", icon: <SiFigma /> },
+          ]}
+        />
+
+        <SkillMatrix
+          index="B"
+          title="Backend & DevOps"
+          nodes={[
+            { name: "Python", icon: <SiPython /> },
+            { name: "FastAPI", icon: <SiFastapi /> },
+            { name: "Docker", icon: <SiDocker /> },
+            { name: "REST APIs", icon: <FiShare2 /> },
+          ]}
+        />
+
+        <SkillMatrix
+          index="C"
+          title="AI & Tools"
+          nodes={[
+            { name: "Claude Code", icon: <SiClaude /> },
+            { name: "Spec-Kit Plus", icon: <BookOpen /> },
+            { name: "Gemini Pro", icon: <Sparkles /> },
+          ]}
+        />
+
+        <SkillMatrix
+          index="D"
+          title="Design & Media"
+          nodes={[
+            {
+              name: "Video Editing & AI Generation",
+              icon: <Clapperboard />,
+              sub: "Google Flow, CapCut",
+            },
+            {
+              name: "Poster & UI Design",
+              icon: <Palette />,
+              sub: "Canva, Figma, Google Flow",
+            },
+          ]}
+        />
       </div>
     </section>
   );
