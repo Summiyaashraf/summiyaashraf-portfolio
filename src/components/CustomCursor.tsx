@@ -3,6 +3,8 @@
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useEffect, useState } from "react";
 
+const FINE_POINTER = "(hover: hover) and (pointer: fine)";
+
 export function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
   const [interactive, setInteractive] = useState(false);
@@ -18,8 +20,10 @@ export function CustomCursor() {
   const ringY = useSpring(y, { stiffness: 240, damping: 24, mass: 0.55 });
 
   useEffect(() => {
-    const query = window.matchMedia("(pointer: fine)");
-    if (!query.matches) return;
+    /* Never attach on a touch device: the synthetic mouse events iOS/Android
+       emit right after a tap would leave a ghost cursor glued to the last
+       touch point, and the per-frame spring updates cost battery. */
+    const query = window.matchMedia(FINE_POINTER);
 
     const move = (e: MouseEvent) => {
       x.set(e.clientX);
@@ -37,31 +41,44 @@ export function CustomCursor() {
 
     const press = () => setPressed(true);
     const release = () => setPressed(false);
+
     const activate = () => {
       setEnabled(true);
       document.documentElement.classList.add("custom-cursor-active");
     };
+
     const deactivate = () => {
       setEnabled(false);
       document.documentElement.classList.remove("custom-cursor-active");
     };
 
-    activate();
+    /* A single handler: attaching both `activate` and `deactivate` to the
+       same `change` event made the cursor disable itself the moment a
+       plugging-in mouse was detected. */
+    const sync = () => {
+      if (query.matches) activate();
+      else deactivate();
+    };
+
+    if (!query.matches) {
+      deactivate();
+      return;
+    }
+
+    sync();
 
     window.addEventListener("mousemove", move, { passive: true });
     window.addEventListener("mouseover", over, { passive: true });
     window.addEventListener("mousedown", press);
     window.addEventListener("mouseup", release);
-    query.addEventListener("change", activate);
-    query.addEventListener("change", deactivate);
+    query.addEventListener("change", sync);
 
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseover", over);
       window.removeEventListener("mousedown", press);
       window.removeEventListener("mouseup", release);
-      query.removeEventListener("change", activate);
-      query.removeEventListener("change", deactivate);
+      query.removeEventListener("change", sync);
       deactivate();
     };
   }, [x, y]);
@@ -72,7 +89,7 @@ export function CustomCursor() {
     <div className="pointer-events-none fixed inset-0 z-[9999] hidden md:block">
       {/* Core dot */}
       <motion.div
-        className="fixed top-0 left-0 h-2 w-2 rounded-full bg-[#e0e8ff] shadow-[0_0_12px_rgba(224,232,255,0.9)]"
+        className="fixed left-0 top-0 h-2 w-2 rounded-full bg-[#e0e8ff] shadow-[0_0_12px_rgba(224,232,255,0.9)]"
         style={{
           x: dotX,
           y: dotY,
@@ -84,7 +101,7 @@ export function CustomCursor() {
       />
       {/* Magnetic halo ring */}
       <motion.div
-        className="fixed top-0 left-0 h-10 w-10 rounded-full border"
+        className="fixed left-0 top-0 h-10 w-10 rounded-full border"
         style={{
           x: ringX,
           y: ringY,

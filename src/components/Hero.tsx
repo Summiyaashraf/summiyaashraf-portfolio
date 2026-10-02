@@ -61,22 +61,22 @@ export function Hero() {
       <div className="wave wave-1 z-0" aria-hidden="true" />
       <div className="wave wave-2 z-0" aria-hidden="true" />
 
-      <div className="relative flex flex-col lg:flex-row items-center justify-between gap-12 px-6 md:px-20 py-16 md:py-24">
+      <div className="relative flex flex-col items-center justify-between gap-10 px-4 py-12 sm:gap-12 sm:px-6 sm:py-16 md:px-10 md:py-24 lg:px-20 xl:flex-row">
         {/* Left Content */}
-        <motion.div className="space-y-6 max-w-xl z-10">
+        <motion.div className="z-10 w-full max-w-xl space-y-5 sm:space-y-6">
           <motion.div {...fadeUp(0.05)} className="flex flex-wrap items-center gap-3">
             <span className="status-pill">
               <span className="accent-dot" />
               Available for opportunities
             </span>
-            <span className="hidden sm:inline-flex font-mono text-xs text-muted-foreground">
+            <span className="hidden font-mono text-xs text-muted-foreground sm:inline-flex">
               /summiya-ashraf
             </span>
           </motion.div>
 
           <motion.h1
             {...fadeUp(0.15)}
-            className="text-5xl md:text-6xl font-extrabold leading-[1.05]"
+            className="text-balance text-4xl font-extrabold leading-[1.05] sm:text-6xl lg:text-7xl"
           >
             Hello, I&apos;m{" "}
             <span className="kinetic-text">Summiya Ashraf</span>
@@ -99,7 +99,7 @@ export function Hero() {
                 <span aria-hidden="true" className="text-base leading-none">
                   {link.emoji}
                 </span>
-                <span className="whitespace-nowrap">
+                <span className="sm:whitespace-nowrap">
                   <span className="text-muted-foreground font-medium">
                     {link.role} @
                   </span>{" "}
@@ -115,7 +115,7 @@ export function Hero() {
 
           <motion.div
             {...fadeUp(0.25)}
-            className="flex items-center gap-3 text-lg md:text-xl font-medium text-foreground/90"
+            className="flex flex-wrap items-center gap-x-3 gap-y-1 text-lg font-medium text-foreground/90 md:text-xl"
           >
             <span className="text-muted-foreground">I&apos;m a</span>
             <RotatingRole />
@@ -156,20 +156,25 @@ export function Hero() {
             </a>
           </motion.div>
 
-          <motion.div {...fadeUp(0.55)} className="flex items-center gap-3 pt-2">
-            <span className="font-mono text-xs text-muted-foreground">{"// find me:"}</span>
-            {socials.map(({ href, Icon, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.02] text-muted-foreground hover:text-[#a78bfa] hover:border-[#7c3aed]/60 transition-all"
-              >
-                <Icon className="w-4 h-4" />
-              </a>
-            ))}
+          <motion.div {...fadeUp(0.55)} className="flex flex-wrap items-center gap-3 pt-2">
+            <span className="font-mono text-xs text-muted-foreground">
+              {"// find me:"}
+            </span>
+            <ul className="flex flex-wrap items-center gap-2 sm:gap-3">
+              {socials.map(({ href, Icon, label }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.02] text-muted-foreground transition-all hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </motion.div>
 
@@ -178,35 +183,39 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.35 }}
-          className="relative w-full max-w-lg z-10"
+          className="relative z-10 w-full max-w-lg"
         >
-          <div className="absolute inset-6 rounded-full bg-[#7c3aed]/20 blur-3xl animate-float" />
+          <div
+            aria-hidden="true"
+            className="absolute inset-6 rounded-full bg-[#7c3aed]/20 blur-3xl animate-float"
+          />
 
-          <div className="holo-frame hairline relative w-full h-[400px] md:h-[480px] rounded-2xl overflow-hidden border border-white/10 backdrop-blur-2xl">
+          <div className="holo-frame hairline relative w-full h-[300px] rounded-2xl border border-white/10 overflow-hidden backdrop-blur-2xl sm:h-[380px] md:h-[480px]">
             {/* Terminal title bar */}
-            <div className="relative z-10 flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl">
-              <div className="terminal-dots flex gap-1.5">
+            <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-2.5 border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl">
+              <div className="terminal-dots flex shrink-0 gap-1.5">
                 <span className="bg-[#ff5f57]" />
                 <span className="bg-[#febc2e]" />
                 <span className="bg-emerald-400" />
               </div>
-              <span className="font-mono text-[0.7rem] text-muted-foreground">
+              <span className="truncate font-mono text-[0.7rem] text-muted-foreground">
                 summiya@portfolio: ~
               </span>
-              <span className="font-mono text-[0.65rem] text-[#93c5fd]">v3.0</span>
+              <span className="shrink-0 font-mono text-[0.65rem] text-[#93c5fd]">v3.0</span>
             </div>
 
-            {/* 3D scene */}
-            <div className="absolute inset-0 top-[37px]">
+            {/* 3D scene — `touch-pan-y` (set in Scene3D) lets a finger scroll
+                the page vertically while the canvas sits under the finger. */}
+            <div className="absolute inset-x-0 bottom-0 top-[37px]">
               <Scene3D />
             </div>
 
             {/* Boot log overlay */}
-            <div className="absolute inset-x-0 bottom-0 z-10 px-4 py-3 bg-gradient-to-t from-[#07080c]/90 to-transparent font-mono text-[0.7rem] leading-relaxed">
+            <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#07080c]/90 to-transparent px-4 py-3 font-mono text-[0.7rem] leading-relaxed">
               <p className="text-muted-foreground">
                 &gt; initializing systems <span className="text-emerald-300">ok</span>
               </p>
-              <p className="text-muted-foreground">
+              <p className="truncate text-muted-foreground">
                 &gt; loading summiya.ashraf v3.0 ...
               </p>
               <p className="text-[#a78bfa]">

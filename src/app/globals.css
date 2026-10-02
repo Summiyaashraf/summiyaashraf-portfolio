@@ -86,6 +86,18 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Clips the wide ambient-glow decorations and long unbroken strings that
+       would otherwise add a horizontal scrollbar on 320-430px screens.
+       This MUST stay on the root element: overflow set on the root is
+       propagated to the viewport (so nothing scrolls sideways), whereas the
+       same declaration on <body> forces `overflow-y` to compute to `auto`,
+       turning the body into a scroll container and silently killing the
+       `position: sticky` header. */
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Keep sticky-header anchor targets clear of the nav. */
+    scroll-padding-top: 5.5rem;
   }
   body {
     @apply bg-background text-foreground;
@@ -111,6 +123,52 @@
       );
     background-attachment: fixed;
   }
+
+  /* `background-attachment: fixed` is repainted on every scroll frame and is
+     unreliable on iOS Safari, so fall back to a scrolling background on
+     phones/tablets. */
+  @media (max-width: 767px) {
+    html {
+      scroll-padding-top: 4.5rem;
+    }
+    body {
+      background-attachment: scroll;
+    }
+  }
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-top: 8rem;
+    }
+  }
+
+  /* Kill the grey iOS/Android tap flash and the 300ms synthetic-click delay
+     without disabling pinch zoom. */
+  a,
+  button,
+  [role="button"],
+  input,
+  textarea,
+  select,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  [role="button"],
+  a {
+    touch-action: manipulation;
+  }
+  input,
+  textarea,
+  select {
+    touch-action: manipulation;
+  }
+
+  /* Let the chat message list scroll without chaining to the page. */
+  .overscroll-contain-y {
+    overscroll-behavior-y: contain;
+  }
+
   ::selection {
     background: rgba(124, 58, 237, 0.55);
     color: #ffffff;
@@ -118,6 +176,14 @@
   /* Hide native cursor while the custom fluid cursor is active */
   html.custom-cursor-active * {
     cursor: none !important;
+  }
+
+  /* Belt-and-braces: even if the JS gate ever fails to run, a coarse pointer
+     must never end up with `cursor: none` and no visible replacement. */
+  @media (hover: none), (pointer: coarse) {
+    html.custom-cursor-active * {
+      cursor: auto !important;
+    }
   }
 }
 

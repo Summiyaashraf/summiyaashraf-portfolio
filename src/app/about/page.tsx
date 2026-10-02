@@ -54,8 +54,11 @@ const founderLinkClass =
 
 export default function About() {
   return (
-    <section id="about" className="relative px-6 md:px-20 py-20 overflow-hidden">
-      <div className="pointer-events-none absolute top-10 right-0 w-96 h-96 rounded-full bg-[#2563eb]/10 blur-3xl" />
+    <section id="about" className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-20 md:px-10 lg:px-20">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 top-10 h-96 w-96 rounded-full bg-[#2563eb]/10 blur-3xl sm:right-0"
+      />
 
       {/* Section header */}
       <motion.div
@@ -63,25 +66,25 @@ export default function About() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="mb-12"
+        className="mb-10 sm:mb-12"
       >
-        <div className="flex items-center gap-3 mb-2">
+        <div className="mb-2 flex items-center gap-3">
           <span className="mono-label">01. About Me</span>
           <span className="h-px flex-1 bg-gradient-to-r from-[#7c3aed]/40 to-transparent" />
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold gradient-text">
+        <h2 className="text-balance text-3xl font-bold gradient-text sm:text-4xl lg:text-5xl">
           The person behind the code
         </h2>
       </motion.div>
 
-      <div className="grid lg:grid-cols-[360px_1fr] gap-10 items-start">
+      <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[360px_1fr]">
         {/* Profile card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="acrylic-panel hairline rounded-2xl p-6 space-y-5"
+          className="acrylic-panel hairline space-y-5 rounded-2xl p-5 sm:p-6"
         >
           <div className="relative overflow-hidden rounded-xl border border-white/10">
             <Image
@@ -101,13 +104,13 @@ export default function About() {
             {facts.map(({ Icon, label, value }) => (
               <div
                 key={label}
-                className="flex items-center justify-between rounded-lg border border-white/[0.07] bg-white/[0.02] px-3 py-2.5"
+                className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-lg border border-white/[0.07] bg-white/[0.02] px-3 py-2.5"
               >
                 <span className="flex items-center gap-2 text-muted-foreground">
-                  <Icon className="w-3.5 h-3.5 text-[#7c3aed]" />
+                  <Icon className="w-3.5 h-3.5 shrink-0 text-[#7c3aed]" />
                   {label}
                 </span>
-                <span className="text-foreground">{value}</span>
+                <span className="break-words text-foreground">{value}</span>
               </div>
             ))}
           </div>
@@ -129,11 +132,13 @@ export default function About() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="space-y-8"
         >
-          <p className="text-sm md:text-base leading-relaxed text-muted-foreground italic">
+          <p className="text-sm italic leading-relaxed text-muted-foreground md:text-base">
             &ldquo;Transforming ideas into reality — one line of code at a time.&rdquo;
           </p>
 
-          <p className="text-sm md:text-base leading-relaxed text-muted-foreground text-justify">
+          {/* `text-justify` is only safe once lines are wide enough not to
+              open rivers of whitespace, so it switches on at `md`. */}
+          <p className="text-sm leading-relaxed text-muted-foreground md:text-base md:text-justify">
             I&rsquo;m <strong className="text-foreground">Summiya Ashraf</strong> from{" "}
             <strong className="text-foreground">Karachi</strong>, an intermediate from Sir Syed
             College full-stack developer and passionate teacher handling multiple roles. I started
@@ -170,7 +175,7 @@ export default function About() {
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-[#a78bfa]">
               founder_note
             </p>
-            <p className="mt-2.5 text-sm md:text-base font-semibold leading-relaxed text-foreground">
+            <p className="mt-2.5 text-sm font-semibold leading-relaxed text-foreground md:text-base">
               Currently building and scaling AI-driven platforms at{" "}
               <a {...founderLinkProps(rozgarbot)} className={founderLinkClass}>
                 Rozgarbot
@@ -217,7 +222,7 @@ export default function About() {
           </div>
 
           {/* Core expertise */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             {expertise.map((skill, i) => (
               <motion.div
                 key={i}

@@ -92,24 +92,27 @@ const projects: Project[] = [
 
 export default function Projects() {
   return (
-    <section id="projects" className="relative py-20 overflow-hidden">
-      <div className="pointer-events-none absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-[#2563eb]/15 blur-3xl" />
+    <section id="projects" className="relative overflow-hidden py-14 sm:py-20">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-[#2563eb]/15 blur-3xl"
+      />
 
-      <div className="max-w-7xl mx-auto px-4 mb-12">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mx-auto mb-10 max-w-7xl px-4 sm:mb-12 sm:px-6 md:px-10 lg:px-8">
+        <div className="mb-2 flex items-center gap-3">
           <span className="mono-label">03. Portfolio</span>
           <span className="h-px flex-1 bg-gradient-to-r from-[#7c3aed]/40 to-transparent" />
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold gradient-text">
+        <h2 className="text-balance text-3xl font-bold gradient-text sm:text-4xl lg:text-5xl">
           Selected Work
         </h2>
-        <p className="mt-3 max-w-xl text-muted-foreground">
+        <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
           A glimpse into the real-world products and experiments I build — from
           AI platforms to e-commerce stores.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto px-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 sm:px-6 md:grid-cols-2 md:px-10 lg:grid-cols-3 lg:gap-8 lg:px-8">
         {projects.map((project, index) => {
           const featured = project.founder === true;
           const hasLinks = Boolean(project.github || project.live);
@@ -124,9 +127,9 @@ export default function Projects() {
               className="h-full"
             >
               <TiltCard maxTilt={9} className="group h-full">
-                <div className="flex flex-col justify-between h-full min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl hairline titanium-hover">
-                  <div className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
-                    <span className="mono-micro">
+                <div className="hairline titanium-hover flex h-full min-h-[440px] flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl sm:min-h-[480px]">
+                  <div className="flex items-center justify-between gap-3 px-4 pb-3 pt-4 sm:px-5">
+                    <span className="mono-micro shrink-0">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span
@@ -145,7 +148,7 @@ export default function Projects() {
                     </span>
                   </div>
 
-                  <div className="relative w-full h-48 md:h-52 overflow-hidden rounded-t-xl bg-slate-900/50">
+                  <div className="relative h-44 w-full overflow-hidden rounded-t-xl bg-slate-900/50 md:h-52">
                     {project.image ? (
                       <Image
                         src={project.image}
@@ -162,14 +165,14 @@ export default function Projects() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
                   </div>
 
-                  <div className="flex flex-1 flex-col gap-3 p-5">
+<div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
                     <div>
                       {featured && (
-                        <span className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#7c3aed]/60 bg-gradient-to-r from-[#7c3aed]/25 to-[#2563eb]/25 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-[0.18em] text-[#ddd6fe] shadow-[0_0_20px_rgba(124,58,237,0.35)]">
-                        Founder / Live Product
-                      </span>
+                        <span className="mb-2.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#7c3aed]/60 bg-gradient-to-r from-[#7c3aed]/25 to-[#2563eb]/25 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-[0.18em] text-[#ddd6fe] shadow-[0_0_20px_rgba(124,58,237,0.35)]">
+                          Founder / Live Product
+                        </span>
                       )}
-                      <h3 className="text-lg font-semibold leading-snug text-foreground group-hover:text-[#c7d2fe] transition-colors">
+                      <h3 className="text-lg font-semibold leading-snug text-foreground transition-colors group-hover:text-[#c7d2fe]">
                         {project.title}
                       </h3>
                       <p

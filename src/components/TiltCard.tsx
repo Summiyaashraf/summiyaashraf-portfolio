@@ -8,6 +8,8 @@ import {
   useTransform,
 } from "framer-motion";
 
+import { useHasFinePointer } from "@/hooks/use-media-query";
+
 export function TiltCard({
   children,
   className = "",
@@ -20,6 +22,12 @@ export function TiltCard({
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
+  /* Hover tilt is a pointer-only affordance. On touch there is no hover, and
+     the `preserve-3d` transform style buys nothing while making iOS Safari
+     repaint the card inside a 3D context — so fall back to a plain, fully
+     tappable card instead. */
+  const canTilt = useHasFinePointer();
 
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [maxTilt, -maxTilt]), {
     stiffness: 180,
@@ -44,6 +52,10 @@ export function TiltCard({
   function handleMouseLeave() {
     x.set(0);
     y.set(0);
+  }
+
+  if (!canTilt) {
+    return <div className={className}>{children}</div>;
   }
 
   return (

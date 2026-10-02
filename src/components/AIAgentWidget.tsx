@@ -23,6 +23,14 @@ type ChatMessage = {
   text: string;
 };
 
+/** Visual-viewport metrics, published as CSS custom properties on the drawer. */
+type VisualViewportMetrics = {
+  /** Height actually visible right now (shrinks when the keyboard opens). */
+  height: number;
+  /** How far the visible area's bottom edge sits above the layout viewport's. */
+  offset: number;
+};
+
 const SUGGESTIONS = [
   "Hi there!",
   "What has Summiya founded?",
@@ -172,11 +180,36 @@ export function AIAgentWidget() {
   ]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
+  const [viewport, setViewport] = useState<VisualViewportMetrics | null>(null);
 
   const idRef = useRef(0);
   const pendingRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  /* A software keyboard shrinks the *visual* viewport but leaves the layout
+     viewport (and therefore `bottom-0` / `dvh`) untouched on iOS Safari, which
+     would slide the composer under the keyboard. Tracking the visual viewport
+     lets the sheet cap its height and lift by exactly the occluded amount. */
+  useEffect(() => {
+    const visual = window.visualViewport;
+    if (!visual) return;
+
+    const sync = () => {
+      setViewport({
+        height: visual.height,
+        offset: Math.max(0, window.innerHeight - (visual.offsetTop + visual.height)),
+      });
+    };
+
+    sync();
+    visual.addEventListener("resize", sync);
+    visual.addEventListener("scroll", sync);
+    return () => {
+      visual.removeEventListener("resize", sync);
+      visual.removeEventListener("scroll", sync);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -187,7 +220,9 @@ export function AIAgentWidget() {
   }, [messages, pending, open]);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    /* `preventScroll` stops iOS Safari from yanking the fixed drawer (and the
+       page behind it) while the keyboard animates in. */
+    if (open) inputRef.current?.focus({ preventScroll: true });
   }, [open]);
 
   useEffect(() => {
@@ -271,8 +306,9 @@ export function AIAgentWidget() {
 
   return (
     <>
-      {/* Launcher */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Launcher — inset from the safe area so it never sits under the iOS
+          home indicator or a gesture bar. */}
+      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 sm:bottom-6 sm:right-6">
         <motion.button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
@@ -282,6 +318,7 @@ export function AIAgentWidget() {
             open ? "Close Summiya's AI Assistant" : "Open Summiya's AI Assistant"
           }
           aria-expanded={open}
+          aria-controls="ai-assistant-panel"
           className="relative grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#7c3aed] via-[#4338ca] to-[#2563eb] text-white shadow-2xl shadow-[#7c3aed]/40"
         >
           {!open && (
@@ -311,139 +348,164 @@ export function AIAgentWidget() {
         </motion.button>
       </div>
 
-      {/* Chat drawer */}
+      {/* Chat drawer — a full-width bottom sheet on phones (so the keyboard
+          can't squeeze the input out of view) that becomes a floating panel
+          from `sm` up. The wrapper only owns positioning; the motion lives on
+          the panel inside it so the visual-viewport offset can use `transform`
+          without fighting framer-motion. */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.96 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            role="dialog"
-            aria-label="Summiya's AI Assistant"
-            className="fixed bottom-24 right-6 z-50 flex h-[32rem] max-h-[75vh] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/85 shadow-2xl shadow-[#7c3aed]/20 backdrop-blur-2xl"
+          <div
+            className="fixed inset-x-0 bottom-0 z-50 translate-y-[var(--chat-vv-offset,0px)] sm:inset-x-auto sm:bottom-24 sm:right-6 sm:translate-y-0"
+            style={
+              viewport
+                ? ({
+                    "--chat-vv-height": `${viewport.height}px`,
+                    "--chat-vv-offset": `${viewport.offset}px`,
+                  } as React.CSSProperties)
+                : undefined
+            }
           >
-            {/* Header */}
-            <div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-3">
-              <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-gradient-to-br from-[#7c3aed]/40 to-[#2563eb]/40 text-[#c7d2fe]">
-                <Bot className="h-4.5 w-4.5" aria-hidden="true" />
-                <span className="accent-dot absolute -right-0.5 -top-0.5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">
-                  Summiya&apos;s AI Assistant
-                </p>
-                <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                  virtual_representative
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[0.65rem] font-medium text-emerald-300">
-                <span className="status-dot" />
-                Active
-              </span>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close chat"
-                className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-muted-foreground transition-colors hover:border-[#7c3aed]/60 hover:text-foreground"
-              >
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div
-              ref={scrollRef}
-              aria-live="polite"
-              className="flex-1 space-y-3 overflow-y-auto px-4 py-4"
+            <motion.div
+              id="ai-assistant-panel"
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              role="dialog"
+              aria-label="Summiya's AI Assistant"
+              className="flex h-[min(85dvh,var(--chat-vv-height,100dvh))] w-full flex-col overflow-hidden rounded-t-2xl border border-white/10 bg-slate-950/90 shadow-2xl shadow-[#7c3aed]/20 backdrop-blur-2xl sm:h-[32rem] sm:max-h-[75dvh] sm:w-[22rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-2xl"
             >
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={
-                    message.role === "user" ? "flex justify-end" : "flex justify-start"
-                  }
+              {/* Header */}
+              <div className="flex shrink-0 items-center gap-2.5 border-b border-white/10 bg-white/[0.03] px-4 py-3 sm:gap-3">
+                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-gradient-to-br from-[#7c3aed]/40 to-[#2563eb]/40 text-[#c7d2fe]">
+                  <Bot className="h-4.5 w-4.5" aria-hidden="true" />
+                  <span className="accent-dot absolute -right-0.5 -top-0.5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    Summiya&apos;s AI Assistant
+                  </p>
+                  <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                    virtual_representative
+                  </p>
+                </div>
+                <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[0.65rem] font-medium text-emerald-300 sm:inline-flex">
+                  <span className="status-dot" />
+                  Active
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close chat"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-muted-foreground transition-colors hover:border-[#7c3aed]/60 hover:text-foreground"
                 >
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              </div>
+
+              {/* Messages */}
+              <div
+                ref={scrollRef}
+                aria-live="polite"
+                className="overscroll-contain-y min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4"
+              >
+                {messages.map((message) => (
                   <div
+                    key={message.id}
                     className={
-                      message.role === "user"
-                        ? "max-w-[85%] rounded-2xl rounded-br-md border border-[#7c3aed]/40 bg-[#7c3aed]/20 px-3.5 py-2.5 text-sm text-foreground"
-                        : "max-w-[90%] space-y-2 whitespace-pre-wrap break-words rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm leading-relaxed text-slate-200"
+                      message.role === "user" ? "flex justify-end" : "flex justify-start"
                     }
                   >
-                    {message.role === "user" ? (
-                      message.text
-                    ) : (
-                      <>
-                        <BotReply text={message.text} />
-                        {FOUNDER_MENTION.test(message.text) && (
-                          <FounderLinkButtons />
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {pending && <TypingIndicator />}
-
-              {showSuggestions && (
-                <div className="space-y-2 pt-1">
-                  <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                    quick_actions
-                  </p>
-                  {SUGGESTIONS.map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onClick={() => void send(suggestion)}
-                      className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-xs text-slate-300 transition-colors hover:border-[#7c3aed]/50 hover:text-[#c7d2fe]"
+                    <div
+                      className={
+                        message.role === "user"
+                          ? "max-w-[85%] rounded-2xl rounded-br-md border border-[#7c3aed]/40 bg-[#7c3aed]/20 px-3.5 py-2.5 text-sm text-foreground"
+                          : "max-w-[90%] space-y-2 whitespace-pre-wrap break-words rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm leading-relaxed text-slate-200"
+                      }
                     >
-                      <Sparkles
-                        className="h-3 w-3 shrink-0 text-[#a78bfa]"
-                        aria-hidden="true"
-                      />
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                      {message.role === "user" ? (
+                        message.text
+                      ) : (
+                        <>
+                          <BotReply text={message.text} />
+                          {FOUNDER_MENTION.test(message.text) && (
+                            <FounderLinkButtons />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
 
-            {/* Footer notice + input */}
-            <div className="border-t border-white/10 bg-white/[0.02] px-4 py-3">
-              <p className="mb-2 flex items-center gap-1.5 font-mono text-[0.6rem] text-muted-foreground">
-                <ShieldCheck className="h-3 w-3 text-emerald-400" aria-hidden="true" />
-                portfolio topics only
-              </p>
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  void send(input);
-                }}
-                className="flex items-center gap-2"
-              >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  maxLength={800}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder="Ask about my projects, skills or hiring…"
-                  aria-label="Message Summiya's AI Assistant"
-                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-[#60a5fa]/70 focus:outline-none focus:ring-1 focus:ring-[#2563eb]/40"
-                />
-                <button
-                  type="submit"
-                  disabled={pending || input.trim().length === 0}
-                  aria-label="Send message"
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-gradient-to-br from-[#7c3aed] to-[#2563eb] text-white transition-opacity disabled:opacity-40"
+                {pending && <TypingIndicator />}
+
+                {showSuggestions && (
+                  <div className="space-y-2 pt-1">
+                    <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                      quick_actions
+                    </p>
+                    {SUGGESTIONS.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => void send(suggestion)}
+                        className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2.5 text-left text-[0.8rem] text-slate-300 transition-colors hover:border-[#7c3aed]/50 hover:text-[#c7d2fe] sm:py-2 sm:text-xs"
+                      >
+                        <Sparkles
+                          className="h-3 w-3 shrink-0 text-[#a78bfa]"
+                          aria-hidden="true"
+                        />
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer notice + input — pinned last in a flex column with
+                  `shrink-0` so the on-screen keyboard can never push the field
+                  off the bottom of the sheet. */}
+              <div className="shrink-0 border-t border-white/10 bg-white/[0.02] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-3">
+                <p className="mb-2 flex items-center gap-1.5 font-mono text-[0.6rem] text-muted-foreground">
+                  <ShieldCheck className="h-3 w-3 text-emerald-400" aria-hidden="true" />
+                  portfolio topics only
+                </p>
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void send(input);
+                  }}
+                  className="flex items-center gap-2"
                 >
-                  <Send className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </form>
-            </div>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    maxLength={800}
+                    onChange={(event) => setInput(event.target.value)}
+                    placeholder="Ask about projects, skills or hiring…"
+                    aria-label="Message Summiya's AI Assistant"
+                    enterKeyHint="send"
+                    autoComplete="off"
+                    autoCorrect="on"
+                    autoCapitalize="sentences"
+                    /* 16px minimum: anything smaller makes iOS Safari zoom the
+                       viewport in on focus and never zoom back out. */
+                    className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-[#60a5fa]/70 focus:outline-none focus:ring-1 focus:ring-[#2563eb]/40 sm:text-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={pending || input.trim().length === 0}
+                    aria-label="Send message"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-gradient-to-br from-[#7c3aed] to-[#2563eb] text-white transition-opacity disabled:opacity-40 sm:h-10 sm:w-10"
+                  >
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </form>
+              </div>
           </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>
