@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "next-themes";
-import Footer from "@/components/Footer"; // ✅ Import Footer
+import Footer from "@/components/Footer";
 import { CustomCursor } from "@/components/CustomCursor";
 import { AIAgentWidget } from "@/components/AIAgentWidget";
 import "./globals.css";
@@ -18,13 +18,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Summiya's Portfolio",
-  description: "Created with Next.js 15, Tailwind CSS, ShadCN UI",
+  title: "Summiya Ashraf | Full-Stack Developer & AI Student",
+  description: "Portfolio of Summiya Ashraf - Full-Stack Developer & AI Specialist.",
+  icons: {
+    icon: "/profile.jpg",
+    apple: "/profile.jpg",
+  },
+  openGraph: {
+    title: "Summiya Ashraf | Full-Stack Developer & AI Student",
+    description: "Explore interactive projects, 3D experiences, and AI solutions by Summiya Ashraf.",
+    url: "https://summiyaashraf-portfolio-summiya-ashrafs-projects.vercel.app",
+    siteName: "Summiya Ashraf Portfolio",
+    images: [
+      {
+        url: "/profile.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Summiya Ashraf Portfolio Preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Summiya Ashraf | Full-Stack Developer & AI Student",
+    description: "Explore interactive projects, 3D experiences, and AI solutions by Summiya Ashraf.",
+    images: ["/profile.jpg"],
+  },
 };
 
-/* Pin the layout to the real device width so 320-430px phones render at their
-   native width instead of a scaled-down 980px desktop canvas. Zoom stays
-   user-controlled (no maximumScale) for accessibility. */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
